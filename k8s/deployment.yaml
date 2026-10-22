@@ -54,6 +54,7 @@ spec:
             - name: WEBAUTHN_RP_ID
               value: "localhost"
 
+            
             - name: WEBAUTHN_ORIGIN
               value: "http://localhost:30081"
 
