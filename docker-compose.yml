@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: passkey-demo
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-dev-only-change-this-secret}
+      FLASK_PRODUCTION: "false"
+      DATABASE_URL: sqlite:////app/instance/passkey_demo.db
+      SESSION_COOKIE_SECURE: "false"
+      TRUST_PROXY_HEADERS: "false"
+      CSRF_PROTECT: "true"
+      RATE_LIMIT_ENABLED: "true"
+    volumes:
+      - passkey_demo_data:/app/instance
+
+volumes:
+  passkey_demo_data:

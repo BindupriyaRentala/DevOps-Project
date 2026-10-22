@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Secure Passkey & PIN Demo</title>
+  <style>
+    :root{--bg:#f3ede2;--panel:rgba(255,251,245,.94);--text:#1e1b18;--muted:#6d6257;--line:rgba(30,27,24,.12);--accent:#b14d24;--deep:#7c2f12;--success:#1d6b43;--shadow:0 20px 55px rgba(89,58,31,.13)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Georgia,"Times New Roman",serif;color:var(--text);background:radial-gradient(circle at top left,rgba(255,255,255,.7),transparent 35%),radial-gradient(circle at bottom right,rgba(177,77,36,.2),transparent 30%),linear-gradient(135deg,#efe2cf,#f8f3ea 45%,#e4d5bf)}
+    .layout{width:min(1120px,calc(100% - 32px));margin:auto;padding:32px 0 56px}.site-nav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px}.site-nav a{color:var(--deep);margin-right:16px;text-decoration:none;font-weight:700}.site-nav .brand{font-size:1.25rem}.panel,.meta-card{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow)}.home-panel{margin-bottom:22px}.home-panel h1{margin:0 0 12px;font-size:clamp(2rem,5vw,3.2rem)}.subtext{margin:0 0 18px;color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.panel h2{margin:0 0 8px;font-size:1.65rem}label{display:block;margin:12px 0 7px}input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff;color:var(--text)}input:focus{outline:2px solid rgba(177,77,36,.25);border-color:var(--accent)}button,.action-link{display:inline-block;margin-top:12px;padding:13px 16px;border:0;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;color:#fff8f2;background:linear-gradient(135deg,var(--accent),var(--deep));text-decoration:none}button{width:100%}button:disabled{opacity:.65;cursor:wait}.secondary-button{background:#fff;color:var(--deep);border:1px solid var(--line);box-shadow:none}.danger-button{width:auto;margin:0;background:#fff;color:var(--deep);border:1px solid var(--line);box-shadow:none}.status{margin-top:14px;min-height:44px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.7);color:var(--muted);line-height:1.45;overflow-wrap:anywhere}.status.success{color:var(--success);background:rgba(29,107,67,.08)}.status.error{color:var(--deep);background:rgba(177,77,36,.08)}.home-actions{display:flex;gap:12px;flex-wrap:wrap}.secondary-link{background:white;color:var(--deep);border:1px solid var(--line)}.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px}.meta-card h3{margin:0 0 10px}.meta-card p,.meta-card pre{margin:0;color:var(--muted);line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.management{margin-top:22px}.passkey-list{display:grid;gap:12px;margin-top:14px}.passkey-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.65)}.passkey-title{margin:0 0 5px;font-weight:bold}.passkey-meta{margin:0;color:var(--muted);font-size:.92rem;line-height:1.45}.empty-state{color:var(--muted);margin:0;line-height:1.5}pre{font-family:Consolas,monospace;font-size:.9rem}
+    body.page-home .grid,body.page-home .dashboard-section,body.page-register .login-panel,body.page-register .pin-login-panel,body.page-register .pin-set-panel,body.page-register .dashboard-section,body.page-login .register-panel,body.page-login .pin-register-panel,body.page-login .pin-set-panel,body.page-login .dashboard-section,body.page-dashboard .home-panel,body.page-dashboard .grid{display:none}body.page-register .grid,body.page-login .grid{grid-template-columns:1fr}body.page-register .home-panel,body.page-login .home-panel{display:none}
+    @media(max-width:760px){.grid,.meta{grid-template-columns:1fr}.passkey-item{align-items:flex-start;flex-direction:column}.layout{padding-top:20px}}
+  </style>
+</head>
+<body class="page-{{ page }}">
+<main class="layout">
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="/" class="brand">Passkey Demo</a>
+    <div><a href="/">Home</a><a href="/register">Register</a><a href="/login">Sign In</a><a href="/dashboard">Dashboard</a></div>
+  </nav>
+
+  <section class="panel home-panel">
+    <h1>Secure Passkey Auth</h1>
+    <h1>Secure sign-in, two ways</h1>
+    <p class="subtext">Explore WebAuthn passkeys and a simple 6-digit PIN option for a classroom demonstration. Passkeys use your device authenticator; PIN sign-in is a separate demo method.</p>
+    <div class="home-actions"><a class="action-link" href="/register">Create a passkey</a><a class="action-link secondary-link" href="/login">Sign in</a></div>
+  </section>
+
+  <section class="grid">
+    <article class="panel register-panel">
+      <h2>Create Passkey</h2><p class="subtext">Enter a username and let Windows Hello, Face ID, Touch ID, or a security key create a passkey.</p>
+      <label for="register-username">Username</label><input id="register-username" placeholder="demo-user" maxlength="120" autocomplete="username">
+      <button id="register-button">Generate Passkey</button><div id="register-status" class="status">Waiting to create a passkey.</div>
+    </article>
+    <article class="panel login-panel">
+      <h2>Use Passkey</h2><p class="subtext">Sign in with the same username and its registered passkey.</p>
+      <label for="login-username">Username</label><input id="login-username" placeholder="demo-user" maxlength="120" autocomplete="username">
+      <button id="login-button">Sign In With Passkey</button><div id="login-status" class="status">Waiting to sign in.</div>
+    </article>
+    <article class="panel pin-register-panel">
+      <h2>Create PIN Account</h2><p class="subtext">Create a new demo account with a username and a 6-digit PIN, without registering a passkey.</p>
+      <label for="pin-register-username">Username</label><input id="pin-register-username" placeholder="pin-user" maxlength="120" autocomplete="username">
+      <label for="pin-register-value">Choose a 6-digit PIN</label><input id="pin-register-value" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6 digits" autocomplete="new-password">
+      <button id="pin-register-button">Create PIN Account</button><div id="pin-register-status" class="status">Ready to create a PIN account.</div>
+    </article>
+    <article class="panel pin-login-panel">
+      <h2>Sign In With PIN</h2><p class="subtext">Use the username and PIN registered for your account.</p>
+      <label for="pin-login-username">Username</label><input id="pin-login-username" placeholder="pin-user" maxlength="120" autocomplete="username">
+      <label for="pin-login-value">6-digit PIN</label><input id="pin-login-value" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6 digits" autocomplete="current-password">
+      <button id="pin-login-button">Sign In With PIN</button><div id="pin-login-status" class="status">Waiting to sign in.</div>
+    </article>
+    <article class="panel pin-set-panel">
+      <h2>Set or Change PIN</h2><p class="subtext">Sign in first, then save a PIN for your active account. Existing passkeys remain available.</p>
+      <label for="pin-set-value">New 6-digit PIN</label><input id="pin-set-value" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6 digits" autocomplete="new-password">
+      <button id="pin-set-button">Save PIN</button><div id="pin-set-status" class="status">Sign in before setting a PIN.</div>
+    </article>
+  </section>
+
+  <section class="meta dashboard-section">
+    <article class="meta-card"><h3>Current Session</h3><p id="session-state">Checking demo state...</p><button id="logout-button" class="secondary-button" hidden>Sign Out</button></article>
+    <article class="meta-card"><h3>How It Works</h3><pre id="demo-tip">Passkey sign-in verifies a WebAuthn challenge. PIN sign-in checks a one-way hash stored for the account.</pre></article>
+    <article class="meta-card"><h3>Known Users</h3><pre id="user-state">Loading...</pre></article>
+  </section>
+  <section class="panel management dashboard-section"><h2>Manage Passkeys</h2><p class="subtext">Signed-in users can review their registered passkeys. Add a backup before deleting an old passkey.</p><div id="passkey-list" class="passkey-list"><p class="empty-state">Sign in to manage passkeys.</p></div></section>
+</main>
+<script>
+const csrfToken=document.querySelector('meta[name="csrf-token"]').content;
+const $=id=>document.getElementById(id);
+const registerUsername=$('register-username'),loginUsername=$('login-username');
+const registerButton=$('register-button'),loginButton=$('login-button');
+const registerStatus=$('register-status'),loginStatus=$('login-status');
+const sessionState=$('session-state'),userState=$('user-state'),logoutButton=$('logout-button'),passkeyList=$('passkey-list');
+const pinRegisterUsername=$('pin-register-username'),pinRegisterValue=$('pin-register-value'),pinRegisterButton=$('pin-register-button'),pinRegisterStatus=$('pin-register-status');
+const pinLoginUsername=$('pin-login-username'),pinLoginValue=$('pin-login-value'),pinLoginButton=$('pin-login-button'),pinLoginStatus=$('pin-login-status');
+const pinSetValue=$('pin-set-value'),pinSetButton=$('pin-set-button'),pinSetStatus=$('pin-set-status');
+function bufferToBase64url(buffer){const bytes=new Uint8Array(buffer);let binary='';bytes.forEach(b=>binary+=String.fromCharCode(b));return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'')}
+function base64urlToBuffer(value){const padded=`${value}${'='.repeat((4-(value.length%4))%4)}`.replace(/-/g,'+').replace(/_/g,'/');const binary=atob(padded);const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return bytes.buffer}
+function setStatus(element,message,type=''){element.textContent=message;element.className=`status${type?` ${type}`:''}`}
+async function postJson(url,payload){const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrfToken},body:JSON.stringify(payload)});const raw=await response.text();let data;try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error(raw||'Server returned a non-JSON response')}if(!response.ok)throw new Error(data.error||'Request failed');return data}
+async function deleteJson(url){const response=await fetch(url,{method:'DELETE',headers:{'X-CSRF-Token':csrfToken}});const data=await response.json();if(!response.ok)throw new Error(data.error||'Request failed');return data}
+function formatDate(value){if(!value)return 'Never';return new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(value))}
+function publicKeyForRegistration(options){return {...options,challenge:base64urlToBuffer(options.challenge),user:{...options.user,id:base64urlToBuffer(options.user.id)},excludeCredentials:(options.excludeCredentials||[]).map(c=>({...c,id:base64urlToBuffer(c.id)}))}}
+function publicKeyForAuthentication(options){return {...options,challenge:base64urlToBuffer(options.challenge),allowCredentials:(options.allowCredentials||[]).map(c=>({...c,id:base64urlToBuffer(c.id)}))}}
+function serializeRegistrationCredential(c){return {id:c.id,rawId:bufferToBase64url(c.rawId),type:c.type,authenticatorAttachment:c.authenticatorAttachment,clientExtensionResults:c.getClientExtensionResults(),response:{attestationObject:bufferToBase64url(c.response.attestationObject),clientDataJSON:bufferToBase64url(c.response.clientDataJSON),transports:typeof c.response.getTransports==='function'?c.response.getTransports():[]}}}
+function serializeAuthenticationCredential(c){return {id:c.id,rawId:bufferToBase64url(c.rawId),type:c.type,authenticatorAttachment:c.authenticatorAttachment,clientExtensionResults:c.getClientExtensionResults(),response:{authenticatorData:bufferToBase64url(c.response.authenticatorData),clientDataJSON:bufferToBase64url(c.response.clientDataJSON),signature:bufferToBase64url(c.response.signature),userHandle:c.response.userHandle?bufferToBase64url(c.response.userHandle):null}}}
+async function refreshState(){const response=await fetch('/state');const data=await response.json();logoutButton.hidden=!data.signedInAs;sessionState.textContent=data.signedInAs?`Signed in as ${data.signedInAs}`:'No active signed-in user';userState.textContent=JSON.stringify(data.users,null,2);if(data.signedInAs)await refreshPasskeys();else passkeyList.innerHTML='<p class="empty-state">Sign in to manage passkeys.</p>'}
+async function refreshPasskeys(){const response=await fetch('/passkeys');const data=await response.json();if(!response.ok){passkeyList.innerHTML=`<p class="empty-state">${data.error||'Unable to load passkeys.'}</p>`;return}if(!data.passkeys.length){passkeyList.innerHTML='<p class="empty-state">No passkeys registered for this account yet. PIN sign-in can still work.</p>';return}passkeyList.innerHTML='';data.passkeys.forEach(p=>{const item=document.createElement('article');item.className='passkey-item';const details=document.createElement('div');const title=document.createElement('p');title.className='passkey-title';title.textContent=`Passkey ${p.shortId}`;const line1=document.createElement('p');line1.className='passkey-meta';line1.textContent=`Created ${formatDate(p.createdAt)} · Last used ${formatDate(p.lastUsedAt)}`;const line2=document.createElement('p');line2.className='passkey-meta';line2.textContent=`${p.deviceType} · ${p.backedUp?'Backed up':'Not backed up'} · ${(p.transports||[]).join(', ')||'No transport data'}`;details.append(title,line1,line2);const button=document.createElement('button');button.className='danger-button';button.textContent='Delete';button.dataset.passkeyId=p.id;item.append(details,button);passkeyList.appendChild(item)})}
+passkeyList.addEventListener('click',async event=>{const button=event.target.closest('button[data-passkey-id]');if(!button)return;button.disabled=true;try{await deleteJson(`/passkeys/${button.dataset.passkeyId}`);setStatus(loginStatus,'Passkey deleted.','success');await refreshState()}catch(error){setStatus(loginStatus,error.message,'error')}finally{button.disabled=false}});
+logoutButton.addEventListener('click',async()=>{logoutButton.disabled=true;try{await postJson('/logout',{});setStatus(loginStatus,'Signed out.','success');await refreshState()}catch(error){setStatus(loginStatus,error.message,'error')}finally{logoutButton.disabled=false}});
+registerButton.addEventListener('click',async()=>{if(!window.PublicKeyCredential){setStatus(registerStatus,'This browser does not support passkeys.','error');return}const username=registerUsername.value.trim();if(!username){setStatus(registerStatus,'Enter a username first.','error');return}registerButton.disabled=true;setStatus(registerStatus,'Requesting registration challenge...');try{const options=await postJson('/register/options',{username});const credential=await navigator.credentials.create({publicKey:publicKeyForRegistration(options)});if(!credential)throw new Error('Passkey creation was cancelled.');const result=await postJson('/register/verify',serializeRegistrationCredential(credential));loginUsername.value=username;pinLoginUsername.value=username;setStatus(registerStatus,result.message,'success');await refreshState()}catch(error){setStatus(registerStatus,error.message,'error')}finally{registerButton.disabled=false}});
+loginButton.addEventListener('click',async()=>{if(!window.PublicKeyCredential){setStatus(loginStatus,'This browser does not support passkeys.','error');return}const username=loginUsername.value.trim();if(!username){setStatus(loginStatus,'Enter a username first.','error');return}loginButton.disabled=true;setStatus(loginStatus,'Requesting authentication challenge...');try{const options=await postJson('/login/options',{username});const credential=await navigator.credentials.get({publicKey:publicKeyForAuthentication(options)});if(!credential)throw new Error('Passkey sign-in was cancelled.');const result=await postJson('/login/verify',serializeAuthenticationCredential(credential));setStatus(loginStatus,result.message,'success');await refreshState()}catch(error){setStatus(loginStatus,error.message,'error')}finally{loginButton.disabled=false}});
+function validSixDigitPin(pin){return /^[0-9]{6}$/.test(pin)}
+pinRegisterButton.addEventListener('click',async()=>{const username=pinRegisterUsername.value.trim(),pin=pinRegisterValue.value;if(!username||!validSixDigitPin(pin)){setStatus(pinRegisterStatus,'Enter a username and a 6-digit PIN.','error');return}pinRegisterButton.disabled=true;try{const data=await postJson('/pin/register',{username,pin});pinLoginUsername.value=username;pinRegisterValue.value='';setStatus(pinRegisterStatus,data.message,'success');await refreshState()}catch(error){setStatus(pinRegisterStatus,error.message,'error')}finally{pinRegisterButton.disabled=false}});
+pinLoginButton.addEventListener('click',async()=>{const username=pinLoginUsername.value.trim(),pin=pinLoginValue.value;if(!username||!validSixDigitPin(pin)){setStatus(pinLoginStatus,'Enter a username and a 6-digit PIN.','error');return}pinLoginButton.disabled=true;try{const data=await postJson('/pin/login',{username,pin});pinLoginValue.value='';setStatus(pinLoginStatus,data.message,'success');await refreshState()}catch(error){setStatus(pinLoginStatus,error.message,'error')}finally{pinLoginButton.disabled=false}});
+pinSetButton.addEventListener('click',async()=>{const pin=pinSetValue.value;if(!validSixDigitPin(pin)){setStatus(pinSetStatus,'Enter a new 6-digit PIN.','error');return}pinSetButton.disabled=true;try{const data=await postJson('/pin/set',{pin});pinSetValue.value='';setStatus(pinSetStatus,data.message,'success');await refreshState()}catch(error){setStatus(pinSetStatus,error.message,'error')}finally{pinSetButton.disabled=false}});
+refreshState().catch(()=>{sessionState.textContent='Unable to load current state';userState.textContent='{}'});
+</script>
+</body>
+</html>
