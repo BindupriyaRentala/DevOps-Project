@@ -37,22 +37,9 @@ pipeline {
         
         stage('Docker Login') {
             steps {
-                echo "Logging in to Docker Hub"
-        
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-creds',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )
-                ]) {
-                    bat '''
-                        powershell -NoProfile -ExecutionPolicy Bypass -Command "$env:DOCKER_PASS | docker login --username $env:DOCKER_USER --password-stdin"
-                    '''
-                }
+                bat 'docker login -u rentalabindupriya -p bindupriya@19'
             }
         }
-
 
         stage('Push Docker Image to Docker Hub') {
             steps {
